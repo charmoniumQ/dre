@@ -1,23 +1,7 @@
 #!/usr/bin/env python3
-import time
-import contextlib
 from servo import ServoControl
 from camera import CanvasApi, CameraApi
 from face import FaceApi
-
-@contextlib.contextmanager
-def print_time(label):
-    start = time.time()
-    yield
-    end = time.time()
-    elapsed = end - start
-    print('{elapsed: 2.4f}s: {label:}'.format(**locals()))
-
-def print_time_f(func):
-    def func_(*args, **kwargs):
-        with print_time(func.__name__):
-            return func(*args, **kwargs)
-    return func_
 
 
 class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
@@ -33,14 +17,13 @@ class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
             self.set_display(surface)
             result = self.get_face(img_file)
             if result:
-                (mouth_x, mouth_y), face_size = result
-                max_x = len(surface[0])
-                max_y = len(surface)
-                mid_x = max_x // 2
-                self.turn(-mouth_x + mid_x)
-                self.aim(mouth_y)
+                (mouth_x, mouth_y), depth = result
+                self.turn(-mouth_x + self.xmid_px)
+                self.aim((mouth_y - self.ymid_px) * self.deg_per_px_y, depth)
                 self.draw_dot((mouth_x, mouth_y))
-                self.draw_line((mid_x, 0), (mid_x, max_y))
+                self.draw_line((self.xmid_px, 0),
+                               (self.xmid_px, self.height_px))
+                print(depth)
         else:
             print('image not ready')
 
@@ -48,5 +31,6 @@ class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
         CameraApi.close(self)
         CanvasApi.close(self)
 
-with contextlib.closing(Main()) as m:
-    m.run()
+if __name__ == '__main__':
+    with contextlib.closing(Main()) as m:
+        m.run()

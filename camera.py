@@ -1,3 +1,4 @@
+import math
 import cv2
 
 
@@ -5,12 +6,23 @@ class CameraApi(object):
     def __init__(self):
         self.vc = cv2.VideoCapture(1)
 
+    def init_size(self, frame):
+        self.height_px = len(frame)
+        self.width_px = len(surface[0])
+        self.ymid_px = self.heigh_px // 2
+        self.xmid_px = self.width_px // 2
+        self.width_deg = math.atan((131 / 2) / 228)
+        self.height_deg = math.atan((74.5 / 2) / 84)
+        self.deg_per_px_x = self.width_px / self.width_deg
+        self.deg_per_px_y = self.height_px / self.height_deg
+
     def get_img(self, return_file=False):
         if self.vc.isOpened():
             rval, frame = self.vc.read()
             if not rval:
                 raise RuntimeError('Fail')
             else:
+                self.init_size(frame)
                 return frame, open(self.save_img(frame), 'rb')
         else:
             raise RuntimeError('Camera not opened')
