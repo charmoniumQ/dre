@@ -1,3 +1,4 @@
 cognitive_face
 pygame
 pyyaml
+cv2

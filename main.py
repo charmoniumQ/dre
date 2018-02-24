@@ -3,9 +3,9 @@ import cognitive_face
 import pygame, pygame.image
 import cv2
 import yaml
-
 import time
 import contextlib
+
 
 @contextlib.contextmanager
 def print_time(label):
@@ -38,70 +38,64 @@ class FaceApi(object):
         if face_list:
             mouth = face_list[0]['faceLandmarks']['underLipTop']
             face = face_list[0]['faceRectangle']
-            return ((mouth['x'], mouth['y']), face['width'] * face['height'])
+            return ((round(mouth['x']), round(mouth['y'])), face['width'] * face['height'])
 
 
 class CameraApi(object):
     def __init__(self):
-        pygame.camera.init()
-        cam_list = pygame.camera.list_cameras()
-        if len(cam_list) != 1:
-            print('Mulitple cameras detected; using last')
-        self.cam = pygame.camera.Camera(pygame.camera.list_cameras()[-1])
-        #self.cam.set_controls(hflip=True, vflip=False)
-        self.cam.start()
+        self.vc = cv2.VideoCapture(1)
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
-
-    @print_time_f
     def get_img(self, return_file=False):
-        if self.cam is not None:
-            img = self.cam.get_image()
-            pygame.image.save(img, 'img.png')
-            return open('img.png', 'rb'), img
+        if self.vc.isOpened():
+            rval, frame = self.vc.read()
+            if not rval:
+                raise RuntimeError('Fail')
+            else:
+                return frame, open(self.save_img(frame), 'rb')
         else:
-            raise RuntimeError('Camera not initialized')
+            raise RuntimeError('Camera not opened')
+
+    def save_img(self, frame):
+        fname = 'img.png'
+        cv2.imwrite(fname, frame)
+        return fname
 
     def img_ready(self):
-        return self.cam.query_image()
-
-    def get_size(self):
-        return self.cam.get_size()
+        return True
 
     def close(self):
-        if self.cam is not None:
-            self.cam.stop()
-            self.cam = None
-        pygame.camera.quit()
+        if self.vc is not None:
+            self.vc.release()
+            self.vc = None
 
 
 class CanvasApi(object):
     def __init__(self):
-        pygame.init()
-        self.display = pygame.display.set_mode(self.get_size())
+        cv2.namedWindow("preview")
+        self.frame = None
 
     def run(self):
-        done = False
-        while not done:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    done = True
+        while True:
             self.callback()
-            pygame.display.flip()
+            key = cv2.waitKey(20)
+            if key == 27: # exit on ESC
+                break
 
     def callback(self):
         print('over eyed me')
 
-    def set_display(self, surface):
-        self.display.blit(surface, (0, 0))
+    def set_display(self, frame):
+        self.frame = frame
+        cv2.imshow("preview", frame)
 
     def draw_dot(self, pos):
-        red = (255,   0,   0)
-        pygame.draw.circle(self.display, red, (int(pos[0]), int(pos[1])), 10, 0)
+        if self.frame is not None:
+            cv2.circle(self.frame, pos, 10, (255, 0, 0), -1)
+            cv2.imshow("preview", self.frame)
+
+    def close(self):
+        cv2.destroyWindow("preview")
+
 
 class Main(CameraApi, FaceApi, CanvasApi):
     def __init__(self):
@@ -110,15 +104,19 @@ class Main(CameraApi, FaceApi, CanvasApi):
         CanvasApi.__init__(self)
 
     def callback(self):
-        print('img not ready')
         if self.img_ready():
-            img_file, surface = self.get_img()
+            surface, img_file = self.get_img()
             self.set_display(surface)
             result = self.get_face(img_file)
             if result:
                 mouth, depth = result
                 self.draw_dot(mouth)
+        else:
+            print('image not ready')
 
+    def close(self):
+        CameraApi.close(self)
+        CanvasApi.close(self)
 
-with Main() as m:
+with contextlib.closing(Main()) as m:
     m.run()
