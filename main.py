@@ -5,6 +5,7 @@ import cv2
 import yaml
 import time
 import contextlib
+from servo import ServoControl
 
 
 @contextlib.contextmanager
@@ -97,11 +98,12 @@ class CanvasApi(object):
         cv2.destroyWindow("preview")
 
 
-class Main(CameraApi, FaceApi, CanvasApi):
+class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
     def __init__(self):
         CameraApi.__init__(self)
         FaceApi.__init__(self)
         CanvasApi.__init__(self)
+        ServoControl.__init__(self)
 
     def callback(self):
         if self.img_ready():
@@ -110,7 +112,12 @@ class Main(CameraApi, FaceApi, CanvasApi):
             result = self.get_face(img_file)
             if result:
                 mouth, depth = result
+                print ("Mouth X: " + str(mouth[0]))
+                print ("Surface Width/2", len(surface)/2)
+                print ("Error: ", -mouth[0] + len(surface)/2)
+                self.turn(-mouth[0] + len(surface)/2)
                 self.draw_dot(mouth)
+
         else:
             print('image not ready')
 
