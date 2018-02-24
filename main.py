@@ -16,6 +16,7 @@ class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
             ServoControl.__init__(self)
 
     def callback(self):
+        first = True
         if self.img_ready():
             surface, img_file = self.get_img()
             self.set_display(surface)
@@ -24,14 +25,19 @@ class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
             if do_face:
                 result = self.get_face(img_file)
                 if result:
+                    if first:
+                        print(f'Canvas {self.width_px}x{self.height_px} px', end=' ')
+                        print(f'{self.width_deg}x{self.height_deg} deg')
+                        print(f'{self.deg_per_px_x} {self.deg_per_px_x}')
+                        first = False
+
                     (mouth_x, mouth_y), depth = result
-                    print('')
-                    print ("Aim:", (mouth_y - self.ymid_px) * self.deg_per_px_y)
+                    print ("Aim: {}".format(mouth_y - self.ymid_px) * self.deg_per_px_y)
                     if do_servo:
                         self.turn(-mouth_x + self.xmid_px)
                         # self.aim((mouth_y - self.ymid_px) * self.deg_per_px_y, depth)
                     self.draw_dot((mouth_x, mouth_y))
-                    print('depth:', depth)
+                    print(f'depth: {depth}')
         else:
             print('image not ready')
 
