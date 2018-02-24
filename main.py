@@ -28,7 +28,6 @@ class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
                 if result:
                     (mouth_x, mouth_y), depth = result
 
-                    global first
                     if first:
                         print(f'Field of view: {self.width_px}x{self.height_px} px')
                         print(f'Field of view: {self.width_deg:.0f}x{self.height_deg:.0f} deg')
@@ -37,10 +36,11 @@ class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
 
                     self.draw_dot((mouth_x, mouth_y))
                     altitude = (self.ymid_px - mouth_y) * self.deg_per_px_y
+
                     if do_servo:
                         self.turn(self.xmid_px - mouth_x)
                         self.aim(altitude, depth)
-                        self.have_target()
+                        self.got_target()
                         if do_shoot:
                             self.maybe_fire()
                 else:

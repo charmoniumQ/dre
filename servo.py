@@ -7,19 +7,26 @@ import numpy as np
 DEADBAND = 0
 HORIZONTAL_SERVO_STEP = 0.04
 HORIZONTAL_SERVO_DELAY = 0.3
-
+FIRE_DELAY = 0.015
+SHOOTER_VELOCITY = 1
+TURN_TOLERANCE = 3
+AIM_TOLERANCE = 4
 
 class ServoControl(object):
     def __init__(self):
         self.board = Arduino('/dev/cu.usbmodem1421')
+        self.fireServo = self.board.get_pin('d:9:s')
         self.horizontalServo = self.board.get_pin('d:5:s')
         self.vertialServo = self.board.get_pin('d:3:s')
+
         self.hp = 90
         self.vp = 90
+
         self.horizontalServo.write(self.hp)
         self.vertialServo.write(self.vp)
+        self.fireServo.write(0)
+
         time.sleep(.015)
-        self.cancel_target()
 
         self.target_acquired = False
         self.turn_delta = 0
@@ -43,32 +50,42 @@ class ServoControl(object):
         x = depth * np.cos(np.radians(altitude)) * inches2meters
         y = depth * np.sin(np.radians(altitude)) * inches2meters
         g = 9.8
-        v = 1
+        v = SHOOTER_VELOCITY
         desc = v**4 - g*(g*x**2 + 2*y*v)
-        #desc = x**2 + 4*y*(y + (g/(2*v)*x**2))
+        
         if desc >= 0:
             # https://en.wikipedia.org/wiki/Projectile_motion#Angle_'"`UNIQ--postMath-0000003A-QINU`"'_required_to_hit_coordinate_(x,y)
             theta = np.degrees(np.arctan((v**2 - np.sqrt(desc))) / (g*x))
-            #theta = np.degrees(np.arcsin((x - np.sqrt(desc)) / (2*y)))
+           
             self.aim_delta = self.vp - theta
             self.vp = round(theta)
             self.vp = min(max(self.vp, 0), 180)
+           
             print(f'aiming {theta:.0f} deg up to hit {altitude:.0f} deg {depth:.2f} meters away')
+           
             self.vertialServo.write(self.vp)
         else:
             print('unhittable')
 
+    def fire(self):
+        print('fire in the hole')
+        self.fireServo.write(180)
+        time.sleep(FIRE_DELAY)
+        self.fireServo.write(0)
+
     def maybe_fire(self):
         if time.time() - self.cooldown_time < 3:
             return
+        
         print(f'{self.turn_delta:.0f} {self.aim_delta:.0f}')
-        if np.fabs(self.turn_delta) < 3 and \
-            np.fabs(self.aim_delta) < 4:
-            print('fire in the hole')
+        
+        if np.fabs(self.turn_delta) < TURN_TOLERANCE and \
+            np.fabs(self.aim_delta) < AIM_TOLERANCE:
+            self.fire()
             self.cooldown()
 
-    def have_target(self):
-        if not self.target_acquired: # already
+    def got_target(self):
+        if not self.target_acquired:
             self.target_acquired = True
 
     def cancel_target(self):
