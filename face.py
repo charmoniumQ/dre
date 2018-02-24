@@ -17,4 +17,4 @@ class FaceApi(object):
         if face_list:
             upper_lip = face_list[0]['faceLandmarks']['upperLipTop']
             face = face_list[0]['faceRectangle']
-            return ((round(mouth['x']), round(mouth['y'])), face['width'] * face['height'])
+            return ((round(upper_lip['x']), round(upper_lip['y'])), face['width'] * face['height'])

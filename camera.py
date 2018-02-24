@@ -8,8 +8,8 @@ class CameraApi(object):
 
     def init_size(self, frame):
         self.height_px = len(frame)
-        self.width_px = len(surface[0])
-        self.ymid_px = self.heigh_px // 2
+        self.width_px = len(frame[0])
+        self.ymid_px = self.height_px // 2
         self.xmid_px = self.width_px // 2
         self.width_deg = math.atan((131 / 2) / 228)
         self.height_deg = math.atan((74.5 / 2) / 84)
@@ -63,6 +63,11 @@ class CanvasApi(object):
     def draw_dot(self, pos):
         if self.frame is not None:
             cv2.circle(self.frame, pos, 10, (255, 0, 0), -1)
+            cv2.imshow("preview", self.frame)
+
+    def draw_line(self, pos1, pos2):
+        if self.frame is not None:
+            cv2.line(self.frame, pos1, pos2, (255, 0, 0), 2)
             cv2.imshow("preview", self.frame)
 
     def close(self):
