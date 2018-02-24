@@ -17,4 +17,5 @@ class FaceApi(object):
         if face_list:
             upper_lip = face_list[0]['faceLandmarks']['upperLipTop']
             face = face_list[0]['faceRectangle']
-            return ((round(upper_lip['x']), round(upper_lip['y'])), face['width'] * face['height'])
+            diagonal = math.sqrt(face['width']**2 + face['height']**2)
+            return ((round(upper_lip['x']), round(upper_lip['y'])), 1 / diagonal)

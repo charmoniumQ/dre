@@ -37,7 +37,7 @@ class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
                         self.turn(-mouth_x + self.xmid_px)
                         # self.aim((mouth_y - self.ymid_px) * self.deg_per_px_y, depth)
                     self.draw_dot((mouth_x, mouth_y))
-                    print(f'depth: {depth}')
+                    print(f'depth: {depth:.5f}')
         else:
             print('image not ready')
 
