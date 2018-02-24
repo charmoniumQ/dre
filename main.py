@@ -4,8 +4,10 @@ from camera import CanvasApi, CameraApi
 from face import FaceApi
 import contextlib
 
-do_servo = False
 do_face = True
+do_shoot = True
+do_servo = True
+first = True
 
 class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
     def __init__(self):
@@ -16,7 +18,6 @@ class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
             ServoControl.__init__(self)
 
     def callback(self):
-        first = True
         if self.img_ready():
             surface, img_file = self.get_img()
             self.set_display(surface)
@@ -25,19 +26,25 @@ class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
             if do_face:
                 result = self.get_face(img_file)
                 if result:
+                    (mouth_x, mouth_y), depth = result
+
+                    global first
                     if first:
-                        print(f'Canvas {self.width_px}x{self.height_px} px', end=' ')
-                        print(f'{self.width_deg:.0f}x{self.height_deg:.0f} deg')
-                        print(f'{self.deg_per_px_x:.1f} {self.deg_per_px_x:.1f}')
+                        print(f'Field of view: {self.width_px}x{self.height_px} px')
+                        print(f'Field of view: {self.width_deg:.0f}x{self.height_deg:.0f} deg')
+                        print(f'degrees: {self.deg_per_px_x:.3f} {self.deg_per_px_y:.3f}')
                         first = False
 
-                    (mouth_x, mouth_y), depth = result
-                    print ("Aim: {}".format((self.ymid_px - mouth_y) * self.deg_per_px_y))
-                    if do_servo:
-                        self.turn(-mouth_x + self.xmid_px)
-                        # self.aim((mouth_y - self.ymid_px) * self.deg_per_px_y, depth)
                     self.draw_dot((mouth_x, mouth_y))
-                    print(f'depth: {depth:.0f}')
+                    altitude = (self.ymid_px - mouth_y) * self.deg_per_px_y
+                    if do_servo:
+                        self.turn(self.xmid_px - mouth_x)
+                        self.aim(altitude, depth)
+                        self.have_target()
+                        if do_shoot:
+                            self.maybe_fire()
+                else:
+                    self.cancel_target()
         else:
             print('image not ready')
 

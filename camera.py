@@ -11,8 +11,8 @@ class CameraApi(object):
         self.width_px = len(frame[0])
         self.ymid_px = self.height_px // 2
         self.xmid_px = self.width_px // 2
-        self.width_deg = math.degrees(math.atan((131 / 2) / 228)) * 2
-        self.height_deg = math.degrees(math.atan((74.5 / 2) / 84)) * 2
+        self.width_deg = math.degrees(math.atan((131.0 / 2) / 228)) * 2.0
+        self.height_deg = math.degrees(math.atan((74.5 / 2) / 84)) * 2.0
         self.deg_per_px_x = self.width_deg / self.width_px
         self.deg_per_px_y = self.height_deg / self.height_px
 

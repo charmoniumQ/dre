@@ -1,6 +1,7 @@
 import yaml
 import cognitive_face
 import numpy as np
+import math
 
 
 class FaceApi(object):
