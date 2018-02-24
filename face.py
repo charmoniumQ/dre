@@ -1,5 +1,6 @@
 import yaml
 import cognitive_face
+import numpy as np
 
 
 class FaceApi(object):
@@ -17,5 +18,8 @@ class FaceApi(object):
         if face_list:
             upper_lip = face_list[0]['faceLandmarks']['upperLipTop']
             face = face_list[0]['faceRectangle']
-            diagonal = math.sqrt(face['width']**2 + face['height']**2)
-            return ((round(upper_lip['x']), round(upper_lip['y'])), 1 / diagonal)
+            diagonal = np.sqrt(np.float64(face['width'])**2 +
+                                 np.float64(face['height'])**2)
+            face_size = np.float64(48) / np.float64('0.003725')
+            return ((round(upper_lip['x']), round(upper_lip['y'])),
+                    face_size / diagonal)
