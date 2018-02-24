@@ -93,6 +93,11 @@ class CanvasApi(object):
             cv2.circle(self.frame, pos, 10, (255, 0, 0), -1)
             cv2.imshow("preview", self.frame)
 
+    def draw_line(self, pos1, pos2):
+        if self.frame is not None:
+            cv2.line(self.frame, pos1, pos2, (255, 0, 0), 2)
+            cv2.imshow("preview", self.frame)
+
     def close(self):
         cv2.destroyWindow("preview")
 
@@ -111,8 +116,12 @@ class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
             result = self.get_face(img_file)
             if result:
                 (mouth_x, mouth_y), depth = result
-                self.turn(-mouth_x + len(surface)/2)
+                max_x = len(surface[0])
+                max_y = len(surface)
+                mid_x = max_x // 2
+                self.turn(-mouth_x + mid_x)
                 self.draw_dot((mouth_x, mouth_y))
+                self.draw_line((mid_x, 0), (mid_x, max_y))
         else:
             print('image not ready')
 
