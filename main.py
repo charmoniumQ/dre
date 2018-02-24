@@ -30,7 +30,6 @@ class FaceApi(object):
         cognitive_face.Key.set(credentials['key'])
         cognitive_face.BaseUrl.set(credentials['base_url'])
 
-    @print_time_f
     def get_face(self, img_file):
         face_list = cognitive_face.face.detect(img_file, face_id=False, landmarks=True)
         img_file.close()
@@ -111,13 +110,9 @@ class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
             self.set_display(surface)
             result = self.get_face(img_file)
             if result:
-                mouth, depth = result
-                print ("Mouth X: " + str(mouth[0]))
-                print ("Surface Width/2", len(surface)/2)
-                print ("Error: ", -mouth[0] + len(surface)/2)
-                self.turn(-mouth[0] + len(surface)/2)
-                self.draw_dot(mouth)
-
+                (mouth_x, mouth_y), depth = result
+                self.turn(-mouth_x + len(surface)/2)
+                self.draw_dot((mouth_x, mouth_y))
         else:
             print('image not ready')
 

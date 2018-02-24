@@ -1,10 +1,12 @@
 from pyfirmata import Arduino, util
 import time
 
-board = Arduino('/dev/cu.usbmodem1421')
+
 DEADBAND = 0
-HORIZONTAL_SERVO_STEP = .01
-HORIZONTAL_SERVO_DELAY = .3
+HORIZONTAL_SERVO_STEP = 0.03
+HORIZONTAL_SERVO_DELAY = 0.3
+
+
 class ServoControl(object):
     def __init__(self):
         self.board = Arduino('/dev/cu.usbmodem1421')
