@@ -17,10 +17,10 @@ class ServoControl(object):
         time.sleep(.015)
         self.hp = 90
         self.vp = 90
+
     def turn(self, heading):
         if abs(heading) < DEADBAND:
             return True
-        print ("Updating heading by: ", int(HORIZONTAL_SERVO_STEP * heading), self.hp)
         self.hp += round(HORIZONTAL_SERVO_STEP * heading)
         self.hp = min(max(self.hp, 0), 180)
         self.horizontalServo.write(self.hp)

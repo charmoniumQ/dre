@@ -11,8 +11,8 @@ class CameraApi(object):
         self.width_px = len(frame[0])
         self.ymid_px = self.height_px // 2
         self.xmid_px = self.width_px // 2
-        self.width_deg = math.atan((131 / 2) / 228)
-        self.height_deg = math.atan((74.5 / 2) / 84)
+        self.width_deg = math.degrees(math.atan((131 / 2) / 228))
+        self.height_deg = math.degrees(math.atan((74.5 / 2) / 84))
         self.deg_per_px_x = self.width_px / self.width_deg
         self.deg_per_px_y = self.height_px / self.height_deg
 
@@ -48,9 +48,12 @@ class CanvasApi(object):
 
     def run(self):
         while True:
-            self.callback()
-            key = cv2.waitKey(20)
-            if key == 27: # exit on ESC
+            try:
+                self.callback()
+                key = cv2.waitKey(20)
+                if key == 27: # exit on ESC
+                    break
+            except KeyboardInterrupt:
                 break
 
     def callback(self):

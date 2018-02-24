@@ -4,7 +4,7 @@ from camera import CanvasApi, CameraApi
 from face import FaceApi
 import contextlib
 
-do_servo = True
+do_servo = False
 do_face = True
 
 class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
@@ -25,12 +25,13 @@ class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
                 result = self.get_face(img_file)
                 if result:
                     (mouth_x, mouth_y), depth = result
-                    print ("Aim: ", (mouth_y - self.ymid_px) * self.deg_per_px_y)
+                    print('')
+                    print ("Aim:", (mouth_y - self.ymid_px) * self.deg_per_px_y)
                     if do_servo:
                         self.turn(-mouth_x + self.xmid_px)
                         # self.aim((mouth_y - self.ymid_px) * self.deg_per_px_y, depth)
                     self.draw_dot((mouth_x, mouth_y))
-                    print(depth)
+                    print('depth:', depth)
         else:
             print('image not ready')
 
