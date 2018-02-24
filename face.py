@@ -15,6 +15,6 @@ class FaceApi(object):
         if len(face_list) != 1:
             print('Mulitple faces detected; using first')
         if face_list:
-            mouth = face_list[0]['faceLandmarks']['underLipTop']
+            upper_lip = face_list[0]['faceLandmarks']['upperLipTop']
             face = face_list[0]['faceRectangle']
             return ((round(mouth['x']), round(mouth['y'])), face['width'] * face['height'])

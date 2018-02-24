@@ -34,8 +34,13 @@ class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
             result = self.get_face(img_file)
             if result:
                 (mouth_x, mouth_y), face_size = result
-                self.turn(-mouth_x + len(surface)/2)
+                max_x = len(surface[0])
+                max_y = len(surface)
+                mid_x = max_x // 2
+                self.turn(-mouth_x + mid_x)
+                self.aim(mouth_y)
                 self.draw_dot((mouth_x, mouth_y))
+                self.draw_line((mid_x, 0), (mid_x, max_y))
         else:
             print('image not ready')
 
