@@ -27,12 +27,12 @@ class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
                 if result:
                     if first:
                         print(f'Canvas {self.width_px}x{self.height_px} px', end=' ')
-                        print(f'{self.width_deg}x{self.height_deg} deg')
-                        print(f'{self.deg_per_px_x} {self.deg_per_px_x}')
+                        print(f'{self.width_deg:.0f}x{self.height_deg:.0f} deg')
+                        print(f'{self.deg_per_px_x:.1f} {self.deg_per_px_x:.1f}')
                         first = False
 
                     (mouth_x, mouth_y), depth = result
-                    print ("Aim: {}".format(mouth_y - self.ymid_px) * self.deg_per_px_y)
+                    print ("Aim: {}".format((self.ymid_px - mouth_y) * self.deg_per_px_y))
                     if do_servo:
                         self.turn(-mouth_x + self.xmid_px)
                         # self.aim((mouth_y - self.ymid_px) * self.deg_per_px_y, depth)
