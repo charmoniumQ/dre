@@ -18,6 +18,7 @@ class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
             ServoControl.__init__(self)
 
     def callback(self):
+        global first
         if self.img_ready():
             surface, img_file = self.get_img()
             self.set_display(surface)
