@@ -2,3 +2,4 @@ cognitive_face
 pyyaml
 opencv-python
 pyfirmata
+gevent

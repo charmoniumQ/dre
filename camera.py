@@ -1,10 +1,12 @@
 import math
 import cv2
+import getpass
+user = getpass.getuser()
 
 
 class CameraApi(object):
     def __init__(self):
-        self.vc = cv2.VideoCapture(1)
+        self.vc = cv2.VideoCapture(0 if user == 'sam' else 1)
 
     def init_size(self, frame):
         self.height_px = len(frame)
