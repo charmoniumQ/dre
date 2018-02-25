@@ -1,10 +1,13 @@
 import math
 import cv2
+import getpass; user = getpass.getuser()
+from PIL import Image
+import contextlib
 
 
 class CameraApi(object):
     def __init__(self):
-        self.vc = cv2.VideoCapture(1)
+        self.vc = cv2.VideoCapture(0 if user == 'sam' else 1)
 
     def init_size(self, frame):
         self.height_px = len(frame)
@@ -30,6 +33,11 @@ class CameraApi(object):
     def save_img(self, frame):
         fname = 'img.png'
         cv2.imwrite(fname, frame)
+
+        with contextlib.closing(Image.open(fname, 'r')) as image:
+            image = image.resize((image.width // 10, image.height // 10))
+            image.save(fname)
+
         return fname
 
     def img_ready(self):

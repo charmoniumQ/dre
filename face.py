@@ -14,9 +14,9 @@ class FaceApi(object):
     def get_face(self, img_file):
         face_list = cognitive_face.face.detect(img_file, face_id=False, landmarks=True)
         img_file.close()
-        if len(face_list) != 1:
-            print('Mulitple faces detected; using first')
         if face_list:
+            if len(face_list) != 1:
+                print('Mulitple faces detected; using first')
             upper_lip = face_list[0]['faceLandmarks']['upperLipTop']
             face = face_list[0]['faceRectangle']
             diagonal = np.sqrt(np.float64(face['width'])**2 +

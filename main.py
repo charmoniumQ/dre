@@ -6,7 +6,7 @@ import contextlib
 
 do_face = True
 do_shoot = True
-do_servo = True
+do_servo = False
 first = True
 
 class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
