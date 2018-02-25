@@ -2,6 +2,7 @@ from pyfirmata import Arduino, util
 import time
 import math
 import numpy as np
+import aim
 
 
 DEADBAND = 0
@@ -62,21 +63,16 @@ class ServoControl(object):
         depth = depth_inches * inches2meters
         x = depth * np.cos(np.radians(altitude)) * inches2meters
         y = depth * np.sin(np.radians(altitude)) * inches2meters
-        g = 9.8
-        v = SHOOTER_VELOCITY
-        desc = v**4 - g*(g*x**2 + 2*y*v)
-        
-        if desc >= 0:
-            # https://en.wikipedia.org/wiki/Projectile_motion#Angle_'"`UNIQ--postMath-0000003A-QINU`"'_required_to_hit_coordinate_(x,y)
-            theta = np.degrees(np.arctan((v**2 - np.sqrt(desc))) / (g*x))
-           
-            self.aim_delta = self.vertialServo.pos - theta
-           
-            print(f'aiming {theta:.0f} deg up to hit {altitude:.0f} deg {depth:.2f} meters away')
-           
-            self.vertialServo.move_by(self.aim_delta)
-        else:
+
+        try:
+            alpha = aim.get_to(x, y)
+        except ValueError:
             print('unhittable')
+        else:
+            self.aim_delta = self.vertialServo.pos - alpha
+            print(f'aiming {theta:.0f} deg up to hit {altitude:.0f} deg {depth:.2f} meters away')
+            self.vertialServo.move_by(self.aim_delta)
+
 
     def fire(self):
         print('fire in the hole')
