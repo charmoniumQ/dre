@@ -3,6 +3,7 @@ from servo import ServoControl
 from camera import CanvasApi, CameraApi
 from face import FaceApi
 import contextlib
+from util import print_time
 
 do_face = True
 do_shoot = True
@@ -18,14 +19,19 @@ class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
             ServoControl.__init__(self)
 
     def callback(self):
+        print('==')
         global first
         if self.img_ready():
-            surface, img_file = self.get_img()
-            self.set_display(surface)
-            self.draw_line((self.xmid_px, 0),
-                        (self.xmid_px, self.height_px))
+            with print_time('get_img'):
+                surface, img_file = self.get_img()
+
+            with print_time('gui'):
+                self.set_display(surface)
+                self.draw_line((self.xmid_px, 0),
+                            (self.xmid_px, self.height_px))
             if do_face:
-                result = self.get_face(img_file)
+                with print_time('get_face'):
+                    result = self.get_face(img_file)
                 if result:
                     (mouth_x, mouth_y), depth = result
 
@@ -36,14 +42,15 @@ class Main(CameraApi, FaceApi, CanvasApi, ServoControl):
                         first = False
 
                     self.draw_dot((mouth_x, mouth_y))
-                    altitude = (self.ymid_px - mouth_y) * self.deg_per_px_y
 
-                    if do_servo:
-                        self.turn(self.xmid_px - mouth_x)
-                        self.aim(altitude, depth)
-                        self.got_target()
-                        if do_shoot:
-                            self.maybe_fire()
+                    with print_time('do_servo'):
+                        if do_servo:
+                            altitude = (self.ymid_px - mouth_y) * self.deg_per_px_y
+                            self.turn(self.xmid_px - mouth_x)
+                            self.aim(altitude, depth)
+                            self.got_target()
+                            if do_shoot:
+                                self.maybe_fire()
                 else:
                     self.cancel_target()
         else:

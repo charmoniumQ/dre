@@ -35,8 +35,10 @@ class CameraApi(object):
         cv2.imwrite(fname, frame)
 
         with contextlib.closing(Image.open(fname, 'r')) as image:
-            image = image.resize((image.width // 10, image.height // 10))
-            image.save(fname)
+            if image.width > 800 and image.height > 800:
+                width, height = image.width // 5, image.height // 5
+                image = image.resize((width, height))
+                image.save(fname)
 
         return fname
 
