@@ -1,7 +1,8 @@
 import math
 import cv2
-import getpass
-user = getpass.getuser()
+import time
+import random
+import getpass; user = getpass.getuser()
 
 
 class CameraApi(object):
@@ -30,7 +31,7 @@ class CameraApi(object):
             raise RuntimeError('Camera not opened')
 
     def save_img(self, frame):
-        fname = 'img.png'
+        fname = 'img/img-{}-{}.png'.format(int(time.time()), random.randint(0, 1000))
         cv2.imwrite(fname, frame)
         return fname
 
