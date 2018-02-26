@@ -2,6 +2,9 @@
 
 For MakeMIT 2018, we built a device to launch M&M's directly into your mouth.
 
+Reference-style: 
+![Device Photo][img/device.jpg]
+
 ## How we built it
 
 ### The Hardware
